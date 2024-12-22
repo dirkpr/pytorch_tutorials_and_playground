@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pytorch_tutorials_and_playground"
 version = "2024.0.0"
-dependencies = ["numpy", "matplotlib", "torch", "ruff"]
+dependencies = ["numpy", "matplotlib", "torch", "torchvision", "torchaudio", "ruff"]
 requires-python = ">=3.10"
 
 [tool.ruff]
