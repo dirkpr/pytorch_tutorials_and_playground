@@ -73,7 +73,7 @@ for i in range(identity.size(dim=1)):
     identity[i, i] = 1
 print(f"tensor multiplication (@):\n{rand_tensor @ ones_tensor.T}\n")
 print(
-    f"tensor multiplication (@) @ identity:\n{rand_tensor @ ones_tensor.T @ identity}\n"
+    f"tensor multiplication (@) @ identity:\n{rand_tensor @ ones_tensor.T @ identity}\n",
 )
 print(f"tesnor multiplication (element wise):\n{rand_tensor * zeros_tensor}")
 print(f"tesnor multiplication (element wise):\n{rand_tensor * ones_tensor}\n")
