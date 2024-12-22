@@ -7,3 +7,20 @@ name = "pytorch_tutorials_and_playground"
 version = "2024.0.0"
 dependencies = ["numpy", "matplotlib", "torch", "ruff"]
 requires-python = ">=3.10"
+
+[tool.ruff]
+# Allow lines to be as long as line-length
+line-length = 127
+
+# Exclude the .venv directory from linting
+exclude = [".venv"]
+
+[tool.ruff.lint]
+# Enable all checks and only disable those which are unwanted.
+select = ["ALL"]
+
+extend-select = ["I"]
+
+ignore = [
+  "T201", # having a logger is overkill
+]
