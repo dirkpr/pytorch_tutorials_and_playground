@@ -81,10 +81,9 @@ def load_and_compare_transforms() -> None:
         ),
     }
 
-    visualize = False
+    visualize = True
     if visualize:
         visualize_dataset(data["tensor"])
-        visualize_dataset(data["raw"])
 
     idx = 0
     print("tensor:", data["tensor"][idx][0])
