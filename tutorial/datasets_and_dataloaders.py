@@ -27,15 +27,9 @@ def load_datasets() -> tuple[datasets.FashionMNIST, datasets.FashionMNIST]:
     return training_data, test_data
 
 
-def load_dataloaders(
-    training_data: datasets.FashionMNIST,
-    test_data: datasets.FashionMNIST,
-) -> tuple[DataLoader, DataLoader]:
+def load_dataloader(data: datasets.FashionMNIST) -> DataLoader:
     """Create dataloaders for the training and test datasets."""
-    train_dataloader = DataLoader(training_data, batch_size=64, shuffle=True)
-    test_dataloader = DataLoader(test_data, batch_size=64, shuffle=True)
-
-    return train_dataloader, test_dataloader
+    return DataLoader(data, batch_size=64, shuffle=True)
 
 
 def run_dataloader(dataloader: DataLoader) -> None:
@@ -94,7 +88,7 @@ def main() -> None:
     if visualize:
         visualize_dataset(training_data)
     else:
-        run_dataloader(load_dataloaders(training_data, test_data)[0])
+        run_dataloader(load_dataloader(training_data))
 
 
 if __name__ == "__main__":
