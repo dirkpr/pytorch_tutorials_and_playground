@@ -126,7 +126,11 @@ def main() -> None:
     model = create_model()
     loss = nn.MSELoss()
 
-    optimizers = {"Adam": torch.optim.Adam, "SGD": torch.optim.SGD, "custom_sgd": CustomSGD}
+    optimizers = {
+        "Adam": torch.optim.Adam,
+        "SGD": torch.optim.SGD,
+        "custom_sgd": CustomSGD,
+    }
     optimizer = optimizers[OPTIM](model.parameters(), lr=LEARNING_RATE)
 
     for epoch in range(EPOCHS):
