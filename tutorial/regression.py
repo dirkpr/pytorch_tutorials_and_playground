@@ -1,24 +1,28 @@
 #!/bin/env python3
 """Example file to implement model regression. In parts inspired by this video: https://www.youtube.com/watch?v=YAJ5XBwlN4o."""
 
+from collections.abc import Callable
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn
+from torch.utils.data import DataLoader
 
 OPTIM = "custom_sgd"
 LEARNING_RATE = 1e-2
-EPOCHS = 10000
-NOISE = False
+EPOCHS = int(1e4)
+
+true_function = lambda x: np.sin(x)  # noqa: E731
+rng = np.random.default_rng()
 
 
-def generate_data(n_samples: int = 1000, noise: bool = False) -> tuple[np.ndarray, np.ndarray]:
+def generate_data(n_samples: int = 1000, noise: Callable = None) -> tuple[np.ndarray, np.ndarray]:
     """Generate sample data for regression.
 
     Args:
     ----
     n_samples (int): The number of samples to generate. Default is 1000.
-    noise (bool): Whether to add noise to the data. Default is False.
 
     Returns:
     -------
@@ -28,11 +32,10 @@ def generate_data(n_samples: int = 1000, noise: bool = False) -> tuple[np.ndarra
 
     """
     X = np.linspace(-2 * np.pi, 2 * np.pi, n_samples).reshape(-1, 1)  # noqa: N806
-    y = np.sin(X)
+    y = true_function(X)
 
-    if noise:
-        rng = np.random.default_rng()
-        y += rng.normal(0, 0.5, X.shape)
+    if noise is not None:
+        y += noise(X)
 
     return X, y
 
@@ -111,7 +114,14 @@ def main() -> None:
         - LEARNING_RATE: A float specifying the learning rate for the optimizer.
 
     """
-    X, y = generate_data(noise=NOISE)  # noqa: N806
+    X, y = generate_data(  # noqa: N806
+        n_samples=1000,
+        noise=lambda x: rng.normal(0, 0.2, x.shape),
+    )
+
+    data = torch.utils.data.TensorDataset(torch.Tensor(X), torch.Tensor(y))
+    data_loader = DataLoader(data, batch_size=32, shuffle=True)
+
     model = create_model()
     loss = nn.MSELoss()
 
@@ -123,9 +133,10 @@ def main() -> None:
         optimizer = CustomSGD(model.parameters(), lr=LEARNING_RATE)
 
     for epoch in range(EPOCHS):
+        X_, y_ = next(iter(data_loader))  # noqa: N806
         optimizer.zero_grad()
-        output = model(torch.Tensor(X))
-        loss_value = loss(output, torch.Tensor(y))
+        output = model(X_)
+        loss_value = loss(output, y_)
         loss_value.backward()
         optimizer.step()
 
@@ -134,7 +145,8 @@ def main() -> None:
 
     plt.figure(figsize=(12, 6))
     plt.scatter(X, y, s=10, label="Original data")
-    plt.plot(X, model(torch.Tensor(X)).detach().numpy(), color="red", linewidth=4, label="Model prediction")
+    plt.plot(X, true_function(X), linestyle="-", label="True function", color="green", linewidth=4)
+    plt.plot(X, model(torch.Tensor(X)).detach().numpy(), linestyle="--", color="red", linewidth=4, label="Model prediction")
     plt.legend()
     plt.grid()
     plt.xlabel("X")
