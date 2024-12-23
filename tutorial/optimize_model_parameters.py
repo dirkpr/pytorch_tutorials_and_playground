@@ -2,12 +2,12 @@
 """Follows tutorial: https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html."""
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 from datasets_and_dataloaders import load_datasets
 from neural_network import NeuralNetwork
 from torch import nn
 from torch.utils.data import DataLoader
-import numpy as np
 
 LEARNING_RATE = 1e-3
 BATCH_SIZE = 64
