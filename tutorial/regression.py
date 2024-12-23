@@ -1,3 +1,4 @@
+#!/bin/env python3
 """Example file to implement model regression. In parts inspired by this video: https://www.youtube.com/watch?v=YAJ5XBwlN4o."""
 
 import matplotlib.pyplot as plt
