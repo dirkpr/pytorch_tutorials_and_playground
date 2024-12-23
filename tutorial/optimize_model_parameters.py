@@ -55,8 +55,8 @@ def train_loop(
         optimizer.zero_grad()
 
         if batch % 100 == 0:
-            loss, current = loss.item(), batch * BATCH_SIZE + len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+            lossi, current = loss.item(), batch * BATCH_SIZE + len(X)
+            print(f"loss: {lossi:>7f}  [{current:>5d}/{size:>5d}]")
 
     correct /= size
 
