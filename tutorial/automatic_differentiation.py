@@ -54,6 +54,8 @@ def bce_autograd() -> None:
     loss.backward()
     print(w.grad)
     print(b.grad)
+    print(f"Gradient function for z = {z.grad_fn}")
+    print(f"Gradient function for loss = {loss.grad_fn}")
 
     # Disable gradient tracking
     z = torch.matmul(x, w) + b
@@ -68,11 +70,26 @@ def bce_autograd() -> None:
         print(z_det.requires_grad)
 
 
+def jabobian_product() -> None:
+    """Calculate Jabobian product with pytorch."""
+    print("\n\nJacobian product")
+    inp = torch.eye(4, 5, requires_grad=True)
+    out = (inp + 1).pow(2).t()
+    print("before back propagation: out == \n", out, "\n")
+    out.backward(torch.ones_like(out), retain_graph=True)
+    print(f"First call\n{inp.grad}")
+    out.backward(torch.ones_like(out), retain_graph=True)
+    print(f"\nSecond call\n{inp.grad}")
+    inp.grad.zero_()
+    out.backward(torch.ones_like(out), retain_graph=True)
+    print(f"\nCall after zeroing gradients\n{inp.grad}")
+
+
 def main() -> None:
     """Demonstrate automatic differentiation with PyTorch."""
     simple_autograd()
-
     bce_autograd()
+    jabobian_product()
 
 
 if __name__ == "__main__":
