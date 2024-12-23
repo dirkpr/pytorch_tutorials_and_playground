@@ -126,12 +126,8 @@ def main() -> None:
     model = create_model()
     loss = nn.MSELoss()
 
-    if OPTIM == "Adam":
-        optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    elif OPTIM == "SGD":
-        optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
-    elif OPTIM == "custom_sgd":
-        optimizer = CustomSGD(model.parameters(), lr=LEARNING_RATE)
+    optimizers = {"Adam": torch.optim.Adam, "SGD": torch.optim.SGD, "custom_sgd": CustomSGD}
+    optimizer = optimizers[OPTIM](model.parameters(), lr=LEARNING_RATE)
 
     for epoch in range(EPOCHS):
         X_, y_ = next(iter(data_loader))  # noqa: N806
