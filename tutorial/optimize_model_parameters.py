@@ -103,7 +103,8 @@ def test_loop(
     return test_loss, correct
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Run main function."""
     training_data, test_data = load_datasets()
 
     train_dataloader = DataLoader(training_data, batch_size=BATCH_SIZE)
@@ -152,3 +153,7 @@ if __name__ == "__main__":
     plt.show()
 
     print("Done!")
+
+
+if __name__ == "__main__":
+    main()
