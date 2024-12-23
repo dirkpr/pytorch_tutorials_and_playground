@@ -17,12 +17,13 @@ true_function = lambda x: np.sin(x)  # noqa: E731
 rng = np.random.default_rng()
 
 
-def generate_data(n_samples: int = 1000, noise: Callable = None) -> tuple[np.ndarray, np.ndarray]:
+def generate_data(n_samples: int = 1000, noise: Callable | None = None) -> tuple[np.ndarray, np.ndarray]:
     """Generate sample data for regression.
 
     Args:
     ----
     n_samples (int): The number of samples to generate. Default is 1000.
+    noise (Callable): A function that adds noise to the target values. Defaults to None.
 
     Returns:
     -------
@@ -145,8 +146,22 @@ def main() -> None:
 
     plt.figure(figsize=(12, 6))
     plt.scatter(X, y, s=10, label="Original data")
-    plt.plot(X, true_function(X), linestyle="-", label="True function", color="green", linewidth=4)
-    plt.plot(X, model(torch.Tensor(X)).detach().numpy(), linestyle="--", color="red", linewidth=4, label="Model prediction")
+    plt.plot(
+        X,
+        true_function(X),
+        linestyle="-",
+        label="True function",
+        color="green",
+        linewidth=4,
+    )
+    plt.plot(
+        X,
+        model(torch.Tensor(X)).detach().numpy(),
+        linestyle="--",
+        color="red",
+        linewidth=4,
+        label="Model prediction",
+    )
     plt.legend()
     plt.grid()
     plt.xlabel("X")
