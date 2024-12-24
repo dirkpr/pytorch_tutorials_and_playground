@@ -6,8 +6,8 @@ from collections.abc import Callable
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from torch import nn
-from torch.utils.data import DataLoader
+from torch import Tensor, nn
+from torch.utils.data import DataLoader, TensorDataset
 
 OPTIM = "custom_sgd"
 LEARNING_RATE = 1e-2
@@ -104,6 +104,72 @@ class CustomSGD:
                 param.grad.zero_()
 
 
+def train(
+    dataloader: DataLoader,
+    model: nn.Module,
+    loss_fn: nn.MSELoss,
+    optimizer: torch.optim.SGD,
+) -> float:
+    size = len(dataloader.dataset)
+    # Set the model to training mode - important for batch normalization and dropout layers
+    # Unnecessary in this situation but added for best practices
+    model.train()
+    for batch, (X, y) in enumerate(dataloader):  # noqa: N806
+        # Compute prediction and loss
+        pred = model(X)
+        loss = loss_fn(pred, y)
+
+        # Backpropagation
+        loss.backward()
+        optimizer.step()
+        optimizer.zero_grad()
+
+        if batch % 100 == 0:
+            lossi, current = loss.item(), batch * dataloader.batch_size + len(X)
+            print(f"loss: {lossi:>7f}  [{current:>5d}/{size:>5d}]")
+
+    return loss.detach().numpy()
+
+
+def train_dirk_fit(
+    data_loader: DataLoader,
+    model: nn.Module,
+    loss_fn: nn.MSELoss,
+    optimizer: torch.optim.SGD,
+) -> float:
+    model.train()
+    X_, y_ = next(iter(data_loader))  # noqa: N806
+    optimizer.zero_grad()
+    output = model(X_)
+    loss_value = loss_fn(output, y_)
+    loss_value.backward()
+    optimizer.step()
+
+    return loss_value.item()
+
+
+def test(
+    dataloader: DataLoader,
+    model: nn.Module,
+    loss_fn: nn.CrossEntropyLoss,
+) -> float:
+    model.eval()
+    num_batches = len(dataloader)
+    test_loss = 0
+
+    # Evaluating the model with torch.no_grad() ensures that no gradients are computed during test mode
+    # also serves to reduce unnecessary gradient computations and memory usage for tensors with requires_grad=True
+    with torch.no_grad():
+        for X, y in dataloader:
+            pred = model(X)
+            test_loss += loss_fn(pred, y).item()
+
+    test_loss /= num_batches
+    # print(f"Avg loss: {test_loss:>8f} \n")
+
+    return test_loss
+
+
 def main() -> None:
     """Perform regression using PyTorch.
 
@@ -127,8 +193,11 @@ def main() -> None:
         noise=lambda x: rng.normal(0, 0.2, x.shape),
     )
 
-    data = torch.utils.data.TensorDataset(torch.Tensor(X), torch.Tensor(y))
+    data = TensorDataset(Tensor(X), Tensor(y))
     data_loader = DataLoader(data, batch_size=32, shuffle=True)
+
+    x_test, y_test = generate_data(n_samples=100, noise=None)
+    data_loader_test = DataLoader(TensorDataset(Tensor(x_test), Tensor(y_test)), batch_size=32, shuffle=True)
 
     model = create_model()
     loss = nn.MSELoss()
@@ -141,15 +210,11 @@ def main() -> None:
     optimizer = optimizers[OPTIM](model.parameters(), lr=LEARNING_RATE)
 
     for epoch in range(EPOCHS):
-        X_, y_ = next(iter(data_loader))  # noqa: N806
-        optimizer.zero_grad()
-        output = model(X_)
-        loss_value = loss(output, y_)
-        loss_value.backward()
-        optimizer.step()
-
+        # loss_value = train(data_loader, model, loss, optimizer)
+        loss_value = train_dirk_fit(data_loader, model, loss, optimizer)
         if epoch % 100 == 0:
-            print(f"Epoch: {epoch}, Loss: {loss_value.item()}")
+            loss_test = test(data_loader_test, model, loss)
+            print(f"Epoch: {epoch}, Loss: {loss_value}, Test: {loss_test}")
 
     plt.figure(figsize=(12, 6))
     plt.scatter(X, y, s=10, label="Original data")
