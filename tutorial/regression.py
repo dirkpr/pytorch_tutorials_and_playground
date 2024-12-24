@@ -158,7 +158,7 @@ def main() -> None:
 
     plt.plot(
         x_long,
-        true_function(x_long),
+        y_long,
         linestyle="-",
         label="True function",
         color="black",
