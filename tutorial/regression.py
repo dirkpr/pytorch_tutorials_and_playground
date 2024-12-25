@@ -175,8 +175,13 @@ def plot_it(
     orignal_data: tuple[np.ndarray, np.ndarray],
     test_data: tuple[np.ndarray, np.ndarray],
     show=False,
-) -> None:
-    plt.figure(figsize=(12, 6))
+    figure: plt.Figure = None,
+) -> plt.Figure:
+    if figure is None:
+        figure = plt.figure(figsize=(12, 6))
+    else:
+        figure.clear()
+
     plt.scatter(orignal_data[0], orignal_data[1], s=10, label="Original data")
     plt.plot(
         test_data[0],
@@ -200,6 +205,7 @@ def plot_it(
     plt.ylabel("y")
     if show:
         plt.show()
+    return figure
 
 
 def main() -> None:
