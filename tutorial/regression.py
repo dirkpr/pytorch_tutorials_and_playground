@@ -170,6 +170,36 @@ def test(
     return test_loss
 
 
+def plot_it(
+    model: nn.Module,
+    orignal_data: tuple[np.ndarray, np.ndarray],
+    test_data: tuple[np.ndarray, np.ndarray],
+) -> None:
+    plt.figure(figsize=(12, 6))
+    plt.scatter(orignal_data[0], orignal_data[1], s=10, label="Original data")
+    plt.plot(
+        test_data[0],
+        test_data[1],
+        linestyle="-",
+        label="True function",
+        color="black",
+        linewidth=4,
+    )
+    plt.plot(
+        test_data[0],
+        model(torch.Tensor(test_data[0])).detach().numpy(),
+        linestyle="--",
+        color="red",
+        linewidth=4,
+        label="Model prediction",
+    )
+    plt.legend()
+    plt.grid()
+    plt.xlabel("X")
+    plt.ylabel("y")
+    plt.show()
+
+
 def main() -> None:
     """Perform regression using PyTorch.
 
@@ -208,6 +238,7 @@ def main() -> None:
         "custom_sgd": CustomSGD,
     }
     optimizer = optimizers[OPTIM](model.parameters(), lr=LEARNING_RATE)
+    test_data = generate_data(1000, noise=None, start=-3 * np.pi, end=3 * np.pi)
 
     for epoch in range(EPOCHS):
         # loss_value = train(data_loader, model, loss, optimizer)
@@ -216,32 +247,7 @@ def main() -> None:
             loss_test = test(data_loader_test, model, loss)
             print(f"Epoch: {epoch}, Loss: {loss_value}, Test: {loss_test}")
 
-    plt.figure(figsize=(12, 6))
-    plt.scatter(X, y, s=10, label="Original data")
-
-    x_long, y_long = generate_data(1000, noise=None, start=-3 * np.pi, end=3 * np.pi)
-
-    plt.plot(
-        x_long,
-        y_long,
-        linestyle="-",
-        label="True function",
-        color="black",
-        linewidth=4,
-    )
-    plt.plot(
-        x_long,
-        model(torch.Tensor(x_long)).detach().numpy(),
-        linestyle="--",
-        color="red",
-        linewidth=4,
-        label="Model prediction",
-    )
-    plt.legend()
-    plt.grid()
-    plt.xlabel("X")
-    plt.ylabel("y")
-    plt.show()
+    plot_it(model, (X, y), test_data)
 
 
 if __name__ == "__main__":
