@@ -174,38 +174,39 @@ def plot_it(
     model: nn.Module,
     orignal_data: tuple[np.ndarray, np.ndarray],
     test_data: tuple[np.ndarray, np.ndarray],
-    show=False,
-    figure: plt.Figure = None,
+    model_line: plt.Line2D = None,
 ) -> plt.Figure:
-    if figure is None:
-        figure = plt.figure(figsize=(12, 6))
-    else:
-        figure.clear()
-
-    plt.scatter(orignal_data[0], orignal_data[1], s=10, label="Original data")
-    plt.plot(
-        test_data[0],
-        test_data[1],
-        linestyle="-",
-        label="True function",
-        color="black",
-        linewidth=4,
-    )
-    plt.plot(
-        test_data[0],
-        model(torch.Tensor(test_data[0])).detach().numpy(),
-        linestyle="--",
-        color="red",
-        linewidth=4,
-        label="Model prediction",
-    )
-    plt.legend()
-    plt.grid()
-    plt.xlabel("X")
-    plt.ylabel("y")
-    if show:
+    if model_line is None:
+        plt.ion()
+        plt.figure(figsize=(12, 6))
+        plt.scatter(orignal_data[0], orignal_data[1], s=10, label="Original data")
+        plt.plot(
+            test_data[0],
+            test_data[1],
+            linestyle="-",
+            label="True function",
+            color="black",
+            linewidth=4,
+        )
+        (model_line,) = plt.plot(
+            test_data[0],
+            model(torch.Tensor(test_data[0])).detach().numpy(),
+            linestyle="--",
+            color="red",
+            linewidth=4,
+            label="Model prediction",
+        )
+        plt.legend()
+        plt.grid()
+        plt.xlabel("X")
+        plt.ylabel("y")
         plt.show()
-    return figure
+        plt.pause(0.1)
+
+    model_line.set_ydata(model(torch.Tensor(test_data[0])).detach().numpy())
+    plt.pause(0.1)
+
+    return model_line
 
 
 def main() -> None:
@@ -247,6 +248,7 @@ def main() -> None:
     }
     optimizer = optimizers[OPTIM](model.parameters(), lr=LEARNING_RATE)
     test_data = generate_data(1000, noise=None, start=-3 * np.pi, end=3 * np.pi)
+    model_line = None
 
     for epoch in range(EPOCHS):
         # loss_value = train(data_loader, model, loss, optimizer)
@@ -256,9 +258,11 @@ def main() -> None:
             print(f"Epoch: {epoch}, Loss: {loss_value}, Test: {loss_test}")
 
         if epoch % (int(EPOCHS / 10) + 1) == 0:
-            plot_it(model, (X, y), test_data)
+            model_line = plot_it(model, (X, y), test_data, model_line=model_line)
 
-    plot_it(model, (X, y), test_data, show=True)
+    plot_it(model, (X, y), test_data, model_line=model_line)
+    plt.ioff()
+    plt.show()
 
 
 if __name__ == "__main__":
