@@ -201,7 +201,7 @@ def plot_it(
         plt.xlabel("X")
         plt.ylabel("y")
         plt.show()
-        plt.pause(0.1)
+        plt.pause(0.2)
 
     model_line.set_ydata(model(torch.Tensor(test_data[0])).detach().numpy())
     plt.pause(0.1)
@@ -253,11 +253,11 @@ def main() -> None:
     for epoch in range(EPOCHS):
         # loss_value = train(data_loader, model, loss, optimizer)
         loss_value = train_dirk_fit(data_loader, model, loss, optimizer)
-        if epoch % int(EPOCHS / 100) == 0:
+        if epoch % max(1, int(EPOCHS / 100)) == 0:
             loss_test = test(data_loader_test, model, loss)
             print(f"Epoch: {epoch}, Loss: {loss_value}, Test: {loss_test}")
 
-        if epoch % (int(EPOCHS / 10) + 1) == 0:
+        if epoch % max(1, int(EPOCHS / 10)) == 0:
             model_line = plot_it(model, (X, y), test_data, model_line=model_line)
 
     plot_it(model, (X, y), test_data, model_line=model_line)
