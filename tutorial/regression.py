@@ -174,6 +174,7 @@ def plot_it(
     model: nn.Module,
     orignal_data: tuple[np.ndarray, np.ndarray],
     test_data: tuple[np.ndarray, np.ndarray],
+    show=False,
 ) -> None:
     plt.figure(figsize=(12, 6))
     plt.scatter(orignal_data[0], orignal_data[1], s=10, label="Original data")
@@ -197,7 +198,8 @@ def plot_it(
     plt.grid()
     plt.xlabel("X")
     plt.ylabel("y")
-    plt.show()
+    if show:
+        plt.show()
 
 
 def main() -> None:
@@ -243,11 +245,14 @@ def main() -> None:
     for epoch in range(EPOCHS):
         # loss_value = train(data_loader, model, loss, optimizer)
         loss_value = train_dirk_fit(data_loader, model, loss, optimizer)
-        if epoch % 100 == 0:
+        if epoch % int(EPOCHS / 100) == 0:
             loss_test = test(data_loader_test, model, loss)
             print(f"Epoch: {epoch}, Loss: {loss_value}, Test: {loss_test}")
 
-    plot_it(model, (X, y), test_data)
+        if epoch % (int(EPOCHS / 10) + 1) == 0:
+            plot_it(model, (X, y), test_data)
+
+    plot_it(model, (X, y), test_data, show=True)
 
 
 if __name__ == "__main__":
